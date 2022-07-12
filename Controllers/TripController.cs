@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using MyFirstAPI.Repositories;
 using MyFirstAPI.Requests;
+using MyFirstAPI.Responses;
 
 namespace MyFirstAPI.Controllers
 {
@@ -8,6 +10,16 @@ namespace MyFirstAPI.Controllers
     [Route("[controller]")]
     public class TripController : ControllerBase
     {
+
+        [HttpGet] 
+        public ActionResult<List<Trip>> Get()
+        {
+            var tripRepository = new TripRepository(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = TripAPI; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False");
+            var tripResponse01 = new TripResponse();
+            var listTrip = tripRepository.SelectTripFromDB(tripResponse01);
+            return listTrip;
+        }
+
   
         [HttpPost]
         public ActionResult<string> Post([FromBody] TripRequest request)
@@ -21,8 +33,8 @@ namespace MyFirstAPI.Controllers
                 phoneNumberDriver = request.phoneNumberDriver
             };
            
-            var tripRepository01 = new TripRepository(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = TripAPI; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False");
-            tripRepository01.InsertTripIntoDB(trip01);
+            var tripRepository = new TripRepository(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = TripAPI; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False");
+            tripRepository.InsertTripIntoDB(trip01);
             return "Trip inserted with success!";
         }
     }
