@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstAPI.Repositories;
 using MyFirstAPI.Requests;
@@ -21,11 +22,11 @@ namespace MyFirstAPI.Controllers
         public ActionResult<List<Trip>> Get()
         {
             var listTrip = TripRepository.SelectTripFromDB();
-            return listTrip;
+            return Ok(listTrip);
         }
 
         [HttpPost]
-        public ActionResult<string> Post([FromBody] CreateTripRequest request)
+        public ActionResult Post([FromBody] CreateTripRequest request)
         {
             var trip01 = new Trip()
             {
@@ -37,13 +38,11 @@ namespace MyFirstAPI.Controllers
             };
            
             TripRepository.InsertTripIntoDB(trip01);
-            return Ok(request);
-            //return Ok(request);
-            //return Accepted();
+            return NoContent();
         }
 
         [HttpPatch]
-        public ActionResult<string> Patch([FromBody] ModifyTripRequest request)
+        public ActionResult Patch([FromBody] PatchTripRequest request)
         {
             var trip01 = new Trip()
             {
@@ -51,12 +50,19 @@ namespace MyFirstAPI.Controllers
                 LicensePlate = request.LicensePlate
             };
 
-            TripRepository.PatchUpdateTripInDB(trip01);
-            return "Trip updated with success!";
+            if (TripRepository.CheckTripInDB(trip01) == true)
+            {
+                TripRepository.PatchUpdateTripInDB(trip01);
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPut]
-        public ActionResult<string> Put([FromBody] ModifyTripRequest request)
+        public ActionResult Put([FromBody] PutTripRequest request)
         {
             var trip01 = new Trip()
             {
@@ -68,20 +74,34 @@ namespace MyFirstAPI.Controllers
                 PhoneNumberDriver = request.PhoneNumberDriver
             };
 
-            TripRepository.UpdateTripInDB(trip01);
-            return "Trip updated with success!";
+            if (TripRepository.CheckTripInDB(trip01) == true)
+            {
+                TripRepository.UpdateTripInDB(trip01);
+                return NoContent();
+            } else
+            {
+                return NotFound();
+            }
+            
         }
 
         [HttpDelete]
-        public ActionResult<string> Delete([FromBody] ModifyTripRequest request)
+        public ActionResult Delete([FromBody] PutTripRequest request)
         {
             var trip01 = new Trip()
             {
                 Id = request.Id,
             };
 
-            TripRepository.DeleteTripFromDB(trip01);
-            return "Trip deleted with success!";
+            if (TripRepository.CheckTripInDB(trip01) == true)
+            {
+                TripRepository.DeleteTripFromDB(trip01);
+                return NoContent();
+            } else
+            {
+                return NotFound();
+            }
+                
         }
     }
 }

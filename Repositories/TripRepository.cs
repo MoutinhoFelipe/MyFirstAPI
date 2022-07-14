@@ -52,6 +52,23 @@ namespace MyFirstAPI.Repositories
             }
         }
 
+        public bool CheckTripInDB(Trip tParameter)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                string queryString = $"SELECT * FROM trip WHERE id = {tParameter.Id}";
+                var command = new SqlCommand(queryString, connection);
+                connection.Open();
+                if (command.ExecuteReader().HasRows == true)
+                {
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+        }
+
         public void UpdateTripInDB(Trip tParameter)
         {
             using (var connection = new SqlConnection(connectionString))
