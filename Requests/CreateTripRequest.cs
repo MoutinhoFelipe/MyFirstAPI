@@ -1,15 +1,11 @@
-﻿namespace MyFirstAPI
+﻿namespace MyFirstAPI.Requests
 {
-    public class Trip
+    public class CreateTripRequest
     {
-        public int Id { get; set; }
         public string LicensePlate { get; set; }
         public string TypeTrip { get; set; }
-        public string NumberTrip {get; set;}
+        public string NumberTrip { get; set; }
         public string NameDriver { get; set; }
         public string PhoneNumberDriver { get; set; }
-
-        public Trip() { }
-
     }
 }
