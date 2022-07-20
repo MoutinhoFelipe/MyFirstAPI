@@ -13,9 +13,11 @@ namespace MyFirstAPI.Controllers
     {
 
         public TripRepository TripRepository { get; set; }
+        public QueueService QueueService { get; set; }
         public TripController()
         {
             this.TripRepository = new TripRepository(MyConfig.ConnectionString);
+            this.QueueService = new QueueService();
         }
 
         [HttpGet] 
@@ -36,9 +38,18 @@ namespace MyFirstAPI.Controllers
                 NameDriver = request.NameDriver,
                 PhoneNumberDriver = request.PhoneNumberDriver
             };
-           
-            TripRepository.InsertTripIntoDB(trip01);
-            return NoContent();
+
+            //Validação dos Dados de Entrada
+            if (TripRepository.CheckRequest(trip01) == true)
+            {
+                var Id_Inserido = TripRepository.InsertTripIntoDB(trip01);
+                QueueService.SendToQueue(Id_Inserido, trip01.NameDriver, trip01.PhoneNumberDriver);
+                return Ok($"The trip was created with success! ID: {Id_Inserido}");
+            } else
+            {
+                return BadRequest("Limite de caracteres excedido!");
+            }
+            
         }
 
         [HttpPatch]

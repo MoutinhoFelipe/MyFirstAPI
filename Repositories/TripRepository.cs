@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using MyFirstAPI.Requests;
@@ -40,15 +41,41 @@ namespace MyFirstAPI.Repositories
             }
         }
         
-        public void InsertTripIntoDB(Trip tParameter)
+        public string InsertTripIntoDB(Trip tParameter)
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                string queryString = "INSERT INTO trip (license_plate, trip_type, trip_number, driver_name, driver_phone_number)" +
+                string id_inserido = null;
+                string queryString = "INSERT INTO trip (license_plate, trip_type, trip_number, driver_name, driver_phone_number) " +
                 $" VALUES ('{tParameter.LicensePlate}', '{tParameter.TypeTrip}', '{tParameter.NumberTrip}', '{tParameter.NameDriver}', '{tParameter.PhoneNumberDriver}')";
-                var command = new SqlCommand(queryString, connection);
+                string queryStringID = "SELECT ID FROM trip WHERE id = SCOPE_IDENTITY() ";
+                var commandInsert = new SqlCommand(queryString, connection);
+                var commandSelectID = new SqlCommand(queryStringID, connection);
                 connection.Open();
-                command.ExecuteNonQuery();
+                commandInsert.ExecuteNonQuery();
+                var reader = commandSelectID.ExecuteReader();
+                while (reader.Read())
+                {
+                    id_inserido = reader[0].ToString();
+                }
+                return id_inserido;
+            }
+        }
+
+        public bool CheckRequest(Trip tParameter)
+        {
+            int max_length_licensePlate = 10;
+            int max_length_tripType = 50;
+            int max_length_tripNumber = 10;
+            int max_length_driverName = 50;
+            int max_length_driverPhoneNumber = 50;
+
+            if (tParameter.LicensePlate.Length > max_length_licensePlate || tParameter.TypeTrip.Length > max_length_tripType || tParameter.NumberTrip.Length > max_length_tripNumber || tParameter.NameDriver.Length > max_length_driverName || tParameter.PhoneNumberDriver.Length > max_length_driverPhoneNumber)
+            {
+                return false;
+            } else
+            {
+                return true;
             }
         }
 

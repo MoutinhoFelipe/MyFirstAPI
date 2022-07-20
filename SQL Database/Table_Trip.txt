@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[trip]
+(
+	[Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY, 
+    [license_plate] VARCHAR(10) NULL, 
+    [trip_type] VARCHAR(50) NULL, 
+    [trip_number] VARCHAR(10) NULL, 
+    [driver_name] VARCHAR(50) NULL, 
+    [driver_phone_number] VARCHAR(10) NULL
+)
