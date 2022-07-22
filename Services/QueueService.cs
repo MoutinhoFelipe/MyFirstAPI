@@ -1,6 +1,10 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.AspNetCore.Mvc;
+using MyFirstAPI;
+using MyFirstAPI.Requests;
+using RabbitMQ.Client;
 using System;
 using System.Text;
+using System.Text.Json;
 
 public class QueueService
 {
@@ -9,24 +13,22 @@ public class QueueService
 
     }
 
-    public void SendToQueue(string id_trip, string driver_name, string driver_phone)
+    public void SendToQueue(Trip trip)
     {
-        string messageJson;
         var factory = new ConnectionFactory()
         {
-            HostName = "localhost"
+            HostName = MyConfig.HostName
         };
         using (var connection = factory.CreateConnection())
         {
             using (var channel = connection.CreateModel())
             {
-                //messageJson = $"{{} id : {id_trip},
-                
-                var body = Encoding.UTF8.GetBytes(id_trip);
+                string message = JsonSerializer.Serialize(trip);
+                var body = Encoding.UTF8.GetBytes(message);
                 channel.BasicPublish
                 (
                 exchange: "",
-                routingKey: "queuePOST",
+                routingKey: MyConfig.QueueName,
                 basicProperties: null,
                 body: body
                 );

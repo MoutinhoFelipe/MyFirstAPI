@@ -41,11 +41,11 @@ namespace MyFirstAPI.Repositories
             }
         }
         
-        public string InsertTripIntoDB(Trip tParameter)
+        public int InsertTripIntoDB(PostTripRequest tParameter)
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                string id_inserido = null;
+                int id_inserido = 0;
                 string queryString = "INSERT INTO trip (license_plate, trip_type, trip_number, driver_name, driver_phone_number) " +
                 $" VALUES ('{tParameter.LicensePlate}', '{tParameter.TypeTrip}', '{tParameter.NumberTrip}', '{tParameter.NameDriver}', '{tParameter.PhoneNumberDriver}')";
                 string queryStringID = "SELECT ID FROM trip WHERE id = SCOPE_IDENTITY() ";
@@ -56,7 +56,7 @@ namespace MyFirstAPI.Repositories
                 var reader = commandSelectID.ExecuteReader();
                 while (reader.Read())
                 {
-                    id_inserido = reader[0].ToString();
+                   id_inserido = (int)reader[0];
                 }
                 return id_inserido;
             }

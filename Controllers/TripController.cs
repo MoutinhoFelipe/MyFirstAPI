@@ -28,26 +28,33 @@ namespace MyFirstAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] CreateTripRequest request)
+        public IActionResult Post([FromBody]PostTripRequest request)
         {
-            var trip01 = new Trip()
+            
+            //Verificar se o Data Annotation é válido
+            if (ModelState.IsValid)
             {
-                LicensePlate = request.LicensePlate,
-                TypeTrip = request.TypeTrip,
-                NumberTrip = request.NumberTrip,
-                NameDriver = request.NameDriver,
-                PhoneNumberDriver = request.PhoneNumberDriver
-            };
 
-            //Validação dos Dados de Entrada
-            if (TripRepository.CheckRequest(trip01) == true)
-            {
-                var Id_Inserido = TripRepository.InsertTripIntoDB(trip01);
-                QueueService.SendToQueue(Id_Inserido, trip01.NameDriver, trip01.PhoneNumberDriver);
-                return Ok($"The trip was created with success! ID: {Id_Inserido}");
+                //Executar a Inserção da Viagem no Banco de Dados e retornar o ID inserido como String
+                int Id_Inserido = TripRepository.InsertTripIntoDB(request);
+
+                //Instanciando os valores do Request + ID inserido no Banco, à Trip que será enviada a Fila
+                var tripToQueue = new Trip();
+                tripToQueue.Id = Id_Inserido;
+                tripToQueue.LicensePlate = request.LicensePlate;
+                tripToQueue.TypeTrip = request.TypeTrip;
+                tripToQueue.NameDriver = request.NameDriver;
+                tripToQueue.NumberTrip = request.NumberTrip;
+                tripToQueue.PhoneNumberDriver = request.PhoneNumberDriver;
+
+                //Enviar a Viagem para Fila
+                QueueService.SendToQueue(tripToQueue);
+
+                //Retorno Padrão REST
+                return Accepted($"The trip was created with success! ID: {Id_Inserido}");
             } else
             {
-                return BadRequest("Limite de caracteres excedido!");
+                return BadRequest();
             }
             
         }
